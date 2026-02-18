@@ -168,6 +168,12 @@ Partial Class Ribbon1
         Me.Menu1.Items.Add(Me.RI_Transcriptor)
         Me.Menu1.Items.Add(Me.RI_HelpMe)
         Me.Menu1.Items.Add(Me.Settings)
+        Me.RI_AuthToggle = Me.Factory.CreateRibbonButton()
+        Me.Menu1.Items.Add(Me.RI_AuthToggle)
+
+
+
+
         Me.Menu1.KeyTip = "RI"
         Me.Menu1.Label = "Task"
         Me.Menu1.Name = "Menu1"
@@ -803,6 +809,12 @@ Partial Class Ribbon1
         Me.Group2.PerformLayout()
         Me.ResumeLayout(False)
 
+
+        Me.RI_AuthToggle.Label = "Sign In / Out"
+        Me.RI_AuthToggle.Name = "RI_AuthToggle"
+        Me.RI_AuthToggle.OfficeImageId = "AccountSettings"
+        Me.RI_AuthToggle.ShowImage = True
+
     End Sub
 
 
@@ -994,6 +1006,13 @@ Partial Class Ribbon1
         Me.Menu1.SuperTip = $"{AN} " & ThisAddIn.Version & BrandedVersion &
                         $" {SharedLibrary.SharedLibrary.SharedMethods.CopyrightNotice} " &
                         "(model: " & ThisAddIn.INI_Model & ")"
+
+        If AppSession.Auth.IsAuthenticated Then
+            Me.RI_AuthToggle.Label = "Sign Out"
+        Else
+            Me.RI_AuthToggle.Label = "Sign In"
+        End If
+
     End Function
 
     Friend WithEvents Tab1 As RibbonTab
@@ -1067,6 +1086,7 @@ Partial Class Ribbon1
     Friend WithEvents RI_ConvertDocToTxt As RibbonButton
     Friend WithEvents RI_FlattenPDF As RibbonButton
     Friend WithEvents RI_Charting As RibbonButton
+    Friend WithEvents RI_AuthToggle As RibbonButton
 End Class
 
 Partial Class ThisRibbonCollection

@@ -237,6 +237,7 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Security" />
     <Reference Include="System.Security.AccessControl, Version=6.0.0.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.AccessControl.6.0.1\lib\net461\System.Security.AccessControl.dll</HintPath>
     </Reference>
@@ -333,6 +334,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Code\CommonFeatures\WebAgentInterpreter.vb" />
+    <Compile Include="Code\Core\Auth\AppSession.vb" />
+    <Compile Include="Code\Core\Auth\AuthManager.vb" />
+    <Compile Include="Code\Core\Auth\SecureTokenStorage.vb" />
     <Compile Include="Code\Core\Clipboard\SharedMethods.ClipboardSnapshot.vb" />
     <Compile Include="Code\Core\Clipboard\SharedMethods.PutInClipboard.vb" />
     <Compile Include="Code\Core\Clipboard\SharedMethods.StoreAndRestoreClipboard.vb" />
@@ -369,6 +373,10 @@
     </Compile>
     <Compile Include="Code\Core\Texthandling\SharedMethods.TextHandling.vb" />
     <Compile Include="Code\Core\Texthandling\SharedMethods.TextHandlingExcel.vb" />
+    <Compile Include="Code\Core\UI\LoginForm.Designer.vb">
+      <DependentUpon>LoginForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Code\Core\UI\LoginForm.vb" />
     <Compile Include="Code\Core\UI\LogWindow.vb" />
     <Compile Include="Code\Core\UI\SharedMethods.Infobox.vb" />
     <Compile Include="Code\Core\UI\SharedMethods.Pane.vb" />
