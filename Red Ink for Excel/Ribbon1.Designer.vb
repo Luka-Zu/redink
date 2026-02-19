@@ -77,6 +77,7 @@ Partial Class Ribbon1
         Me.RI_Chat = Me.Factory.CreateRibbonButton
         Me.RI_HelpMe = Me.Factory.CreateRibbonButton
         Me.Settings = Me.Factory.CreateRibbonButton
+        Me.RI_AuthToggle = Me.Factory.CreateRibbonButton()
         Me.Group2 = Me.Factory.CreateRibbonGroup
         Me.RI_PrimLang2 = Me.Factory.CreateRibbonButton
         Me.RI_Chat2 = Me.Factory.CreateRibbonButton
@@ -122,6 +123,8 @@ Partial Class Ribbon1
         Me.Menu1.Items.Add(Me.RI_Chat)
         Me.Menu1.Items.Add(Me.RI_HelpMe)
         Me.Menu1.Items.Add(Me.Settings)
+        Me.Menu1.Items.Add(Me.RI_AuthToggle)
+
         Me.Menu1.Label = "Task"
         Me.Menu1.Name = "Menu1"
         Me.Menu1.ShowImage = True
@@ -354,6 +357,12 @@ Partial Class Ribbon1
         Me.RI_FreestyleNM2.OfficeImageId = "CustomActionsGallery"
         Me.RI_FreestyleNM2.ScreenTip = "Allows you to to enter a prompt and have the result shown (and inserted)"
         Me.RI_FreestyleNM2.ShowImage = True
+
+        ' --- Toggle Button Attributes ---
+        Me.RI_AuthToggle.Label = "Sign In / Out"
+        Me.RI_AuthToggle.Name = "RI_AuthToggle"
+        Me.RI_AuthToggle.OfficeImageId = "AccountSettings"
+        Me.RI_AuthToggle.ShowImage = True
         '
         'Ribbon1
         '
@@ -375,7 +384,6 @@ Partial Class Ribbon1
         Await InitializeAppAsync()
         ApplyThemeAwareMenuIcon()
     End Sub
-
 
     Public Async Function InitializeAppAsync() As Task
 
@@ -413,6 +421,14 @@ Partial Class Ribbon1
                         $" {SharedLibrary.SharedLibrary.SharedMethods.CopyrightNotice} " &
                         "(model: " & ThisAddIn.INI_Model & ")"
         UpdateUndoButton()
+
+        ' --- THE FIX: Initialize the label based on login status ---
+        If AppSession.Auth.IsAuthenticated Then
+            Me.RI_AuthToggle.Label = "Sign Out"
+        Else
+            Me.RI_AuthToggle.Label = "Sign In"
+        End If
+
     End Function
 
     Public Async Function UpdateUndoButton() As Task
@@ -422,7 +438,6 @@ Partial Class Ribbon1
             Me.RI_Undo.Enabled = True
         End If
     End Function
-
 
     Friend WithEvents Tab1 As Microsoft.Office.Tools.Ribbon.RibbonTab
     Friend WithEvents Group1 As Microsoft.Office.Tools.Ribbon.RibbonGroup
@@ -454,11 +469,12 @@ Partial Class Ribbon1
     Friend WithEvents RI_Extractor As RibbonButton
     Friend WithEvents Menu3 As RibbonMenu
     Friend WithEvents RI_Renamer As RibbonButton
+    Friend WithEvents RI_AuthToggle As RibbonButton
 End Class
 
 Partial Class ThisRibbonCollection
 
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Friend ReadOnly Property Ribbon1() As Ribbon1
         Get
             Return Me.GetRibbon(Of Ribbon1)()
