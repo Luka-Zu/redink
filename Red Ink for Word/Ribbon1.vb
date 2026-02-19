@@ -532,13 +532,10 @@ Public Class Ribbon1
 
     Private Async Sub ExecuteAuthenticated(action As System.Action)
         Try
-            ' 1. Check if user is logged in via our SharedLibrary gatekeeper
             Dim isAuthenticated = Await AppSession.EnsureAuthenticatedAsync()
-
-            ' 2. If not authenticated, do not execute the action
             If Not isAuthenticated Then Return
 
-            ' 3. If authenticated, execute the requested tool
+            Me.RI_AuthToggle.Label = "Sign Out"
             action.Invoke()
 
         Catch ex As Exception
