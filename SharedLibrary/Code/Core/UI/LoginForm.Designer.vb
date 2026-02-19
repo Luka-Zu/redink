@@ -2,6 +2,7 @@
 ' File: LoginForm.vb
 ' Purpose: Implements a modal Windows Forms login dialog built programmatically.
 '          Handles initial Email/Password login and subsequent 2FA verification.
+'          Styling aligned with ProgressForm.vb using TableLayoutPanel.
 ' =============================================================================
 
 Option Strict On
@@ -17,6 +18,7 @@ Namespace SharedLibrary
         Inherits Form
 
         ' --- UI Elements ---
+        Private WithEvents layout As TableLayoutPanel
         Private WithEvents lblHeader As Label
         Private WithEvents lblEmail As Label
         Private WithEvents txtEmail As TextBox
@@ -33,102 +35,119 @@ Namespace SharedLibrary
 
         Public Sub New()
             ' --- Auto-scale for DPI and font ---
-            Me.AutoScaleDimensions = New SizeF(96.0F, 96.0F)
-            Me.AutoScaleMode = AutoScaleMode.Font
+            Dim standardFont As New Font("Segoe UI", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+            Dim headerFont As New Font("Segoe UI", 12.0F, FontStyle.Bold, GraphicsUnit.Point)
 
-            ' --- Form properties ---
-            Me.ClientSize = New Size(350, 320)
+            Me.AutoScaleMode = AutoScaleMode.Font
+            Me.Font = standardFont
+            Me.AutoSize = True
+            Me.AutoSizeMode = AutoSizeMode.GrowAndShrink
             Me.FormBorderStyle = FormBorderStyle.FixedDialog
             Me.StartPosition = FormStartPosition.CenterScreen
             Me.MaximizeBox = False
             Me.MinimizeBox = False
             Me.ShowInTaskbar = False
-            Me.Text = "Sign In to Red Ink"
 
-            Dim standardFont As New Font("Segoe UI", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
-            Dim headerFont As New Font("Segoe UI", 12.0F, FontStyle.Bold, GraphicsUnit.Point)
+            ' Use SharedMethods for consistent branding
+            Me.Text = "Sign In - " & SharedMethods.AN
 
-            ' --- Header label ---
+            Try
+                Dim bmp As New Bitmap(SharedMethods.GetLogoBitmap(SharedMethods.LogoType.Standard))
+                Me.Icon = Icon.FromHandle(bmp.GetHicon())
+            Catch
+                ' Fallback if icon fails to load
+            End Try
+
+            ' --- TableLayoutPanel Setup ---
+            layout = New TableLayoutPanel() With {
+                .AutoSize = True,
+                .AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                .Dock = DockStyle.Fill,
+                .Padding = New Padding(20),
+                .ColumnCount = 1,
+                .RowCount = 9
+            }
+
+            ' Configure rows to auto-size
+            For i As Integer = 0 To 8
+                layout.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+            Next
+
+            ' --- 1. Header label ---
             lblHeader = New Label() With {
                 .Text = "Welcome to Red Ink",
                 .AutoSize = True,
                 .Font = headerFont,
-                .Location = New Point(20, 20)
+                .Margin = New Padding(0, 0, 0, 15) ' Bottom margin for spacing
             }
-            Me.Controls.Add(lblHeader)
 
-            ' --- Email ---
+            ' --- 2. Email ---
             lblEmail = New Label() With {
                 .Text = "Email:",
                 .AutoSize = True,
-                .Font = standardFont,
-                .Location = New Point(20, 60)
+                .Margin = New Padding(0, 5, 0, 2)
             }
-            Me.Controls.Add(lblEmail)
-
             txtEmail = New TextBox() With {
-                .Font = standardFont,
-                .Location = New Point(20, 80),
-                .Width = Me.ClientSize.Width - 40
+                .MinimumSize = New Size(300, 0),
+                .Dock = DockStyle.Fill,
+                .Margin = New Padding(0, 0, 0, 10)
             }
-            Me.Controls.Add(txtEmail)
 
-            ' --- Password ---
+            ' --- 3. Password ---
             lblPassword = New Label() With {
                 .Text = "Password:",
                 .AutoSize = True,
-                .Font = standardFont,
-                .Location = New Point(20, 115)
+                .Margin = New Padding(0, 5, 0, 2)
             }
-            Me.Controls.Add(lblPassword)
-
             txtPassword = New TextBox() With {
-                .Font = standardFont,
-                .Location = New Point(20, 135),
-                .Width = Me.ClientSize.Width - 40,
-                .UseSystemPasswordChar = True
+                .Dock = DockStyle.Fill,
+                .UseSystemPasswordChar = True,
+                .Margin = New Padding(0, 0, 0, 10)
             }
-            Me.Controls.Add(txtPassword)
 
-            ' --- 2FA (Hidden Initially) ---
+            ' --- 4. 2FA (Hidden Initially) ---
             lbl2FA = New Label() With {
                 .Text = "2FA Code:",
                 .AutoSize = True,
-                .Font = standardFont,
-                .Location = New Point(20, 170),
+                .Margin = New Padding(0, 5, 0, 2),
                 .Visible = False
             }
-            Me.Controls.Add(lbl2FA)
-
             txt2FA = New TextBox() With {
-                .Font = standardFont,
-                .Location = New Point(20, 190),
-                .Width = Me.ClientSize.Width - 40,
+                .Dock = DockStyle.Fill,
+                .Margin = New Padding(0, 0, 0, 10),
                 .Visible = False
             }
-            Me.Controls.Add(txt2FA)
 
-            ' --- Status Label ---
+            ' --- 5. Status Label ---
             lblStatus = New Label() With {
                 .Text = "Please enter your credentials.",
-                .AutoSize = False,
-                .Font = standardFont,
+                .AutoSize = True,
                 .ForeColor = Color.DarkGray,
-                .Location = New Point(20, 230),
-                .Size = New Size(Me.ClientSize.Width - 40, 40)
+                .Margin = New Padding(0, 10, 0, 15),
+                .MaximumSize = New Size(300, 0) ' Allow text wrapping if long
             }
-            Me.Controls.Add(lblStatus)
 
-            ' --- Login Button ---
+            ' --- 6. Login Button ---
             btnLogin = New Button() With {
                 .Text = "Sign In",
-                .Font = standardFont,
-                .Location = New Point(Me.ClientSize.Width - 100, 275),
-                .Size = New Size(80, 30)
+                .AutoSize = True,
+                .MinimumSize = New Size(100, 30),
+                .Anchor = AnchorStyles.Right ' Align button to the right
             }
             AddHandler btnLogin.Click, AddressOf btnLogin_Click
-            Me.Controls.Add(btnLogin)
 
+            ' --- Add Controls to Layout ---
+            layout.Controls.Add(lblHeader, 0, 0)
+            layout.Controls.Add(lblEmail, 0, 1)
+            layout.Controls.Add(txtEmail, 0, 2)
+            layout.Controls.Add(lblPassword, 0, 3)
+            layout.Controls.Add(txtPassword, 0, 4)
+            layout.Controls.Add(lbl2FA, 0, 5)
+            layout.Controls.Add(txt2FA, 0, 6)
+            layout.Controls.Add(lblStatus, 0, 7)
+            layout.Controls.Add(btnLogin, 0, 8)
+
+            Me.Controls.Add(layout)
         End Sub
 
         ''' <summary>
@@ -151,13 +170,19 @@ Namespace SharedLibrary
 
                         ' Morph UI for 2FA
                         lblStatus.Text = $"Please enter the code sent via {result("method")}."
+
+                        ' Disable previous inputs
                         txtEmail.Enabled = False
                         txtPassword.Enabled = False
+
+                        ' Show 2FA inputs (Form will auto-resize to fit these)
                         lbl2FA.Visible = True
                         txt2FA.Visible = True
                         txt2FA.Focus()
+
                         btnLogin.Text = "Verify Code"
                     Else
+                        ' Login successful without 2FA
                         If result.ContainsKey("access_token") Then
                             AppSession.Auth.SetDirectLoginToken(result("access_token").ToString())
                             Me.DialogResult = DialogResult.OK
@@ -197,5 +222,4 @@ Namespace SharedLibrary
             End Try
         End Sub
     End Class
-
 End Namespace
