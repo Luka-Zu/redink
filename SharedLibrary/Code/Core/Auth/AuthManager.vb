@@ -73,14 +73,27 @@ Public Class AuthManager
 
     Public Async Function LogoutAsync() As Task
         If IsAuthenticated Then
-            _client.DefaultRequestHeaders.Authorization = New AuthenticationHeaderValue("Bearer", _accessToken)
-            Await _client.PostAsync("/api/logout", Nothing)
+            Try
+                ' Create a specific request to avoid modifying locked DefaultRequestHeaders
+                Dim request = New HttpRequestMessage(HttpMethod.Post, "/api/logout")
+                request.Headers.Authorization = New AuthenticationHeaderValue("Bearer", _accessToken)
+                Await _client.SendAsync(request)
+            Catch ex As Exception
+                ' If the server is unreachable, we still want to clear the local state below
+                System.Diagnostics.Debug.WriteLine("Logout API call failed: " & ex.Message)
+            End Try
         End If
 
+        ' Clear local token state
         _accessToken = Nothing
         _storage.ClearToken()
-        _cookieContainer = New CookieContainer()
-        _handler.CookieContainer = _cookieContainer
+
+        ' Expire the refresh token cookie manually instead of replacing the locked container
+        Dim cookies = _cookieContainer.GetCookies(_baseUri)
+        Dim refreshTokenCookie = cookies("refresh_token")
+        If refreshTokenCookie IsNot Nothing Then
+            refreshTokenCookie.Expired = True
+        End If
     End Function
 
     ' --- 401 RETRY LOGIC & REFRESH ---
