@@ -41,7 +41,6 @@ Partial Class Ribbon1
         End Try
     End Sub
 
-    'Required by the Component Designer
     Private components As System.ComponentModel.IContainer
 
     Public AN As String = "Red Ink" ' Also Search & Replace manually
@@ -74,6 +73,7 @@ Partial Class Ribbon1
         Me.RI_HelpMe = Me.Factory.CreateRibbonButton
         Me.RI_CompareSelected = Me.Factory.CreateRibbonButton
         Me.Settings = Me.Factory.CreateRibbonButton
+        Me.RI_AuthToggle = Me.Factory.CreateRibbonButton()
         Me.Group2 = Me.Factory.CreateRibbonGroup
         Me.RI_PrimLang2 = Me.Factory.CreateRibbonButton
         Me.RI_Correct2 = Me.Factory.CreateRibbonButton
@@ -119,6 +119,7 @@ Partial Class Ribbon1
         Me.Menu1.Items.Add(Me.RI_DefineMyStyle)
         Me.Menu1.Items.Add(Me.RI_HelpMe)
         Me.Menu1.Items.Add(Me.Settings)
+        Me.Menu1.Items.Add(Me.RI_AuthToggle)
         Me.Menu1.KeyTip = "S"
         Me.Menu1.Label = "Task"
         Me.Menu1.Name = "Menu1"
@@ -295,6 +296,13 @@ Partial Class Ribbon1
         Me.Settings.ScreenTip = "Allows you to temporarily change the settings"
         Me.Settings.ShowImage = True
         '
+        'RI_AuthToggle
+        '
+        Me.RI_AuthToggle.Label = "Sign In / Out"
+        Me.RI_AuthToggle.Name = "RI_AuthToggle"
+        Me.RI_AuthToggle.OfficeImageId = "AccountSettings"
+        Me.RI_AuthToggle.ShowImage = True
+        '
         'Group2
         '
         Me.Group2.Items.Add(Me.RI_PrimLang2)
@@ -346,11 +354,7 @@ Partial Class Ribbon1
 
     End Sub
 
-
-
-
     Public Async Function UpdateRibbon() As Task
-
         If String.IsNullOrWhiteSpace(ThisAddIn.INI_APICall_Object) Then
             Me.RI_Clipboard.Visible = False
         Else
@@ -378,9 +382,13 @@ Partial Class Ribbon1
             Me.RI_ApplyMyStyle.Visible = True
         End If
 
+        If AppSession.Auth.IsAuthenticated Then
+            Me.RI_AuthToggle.Label = "Sign Out"
+        Else
+            Me.RI_AuthToggle.Label = "Sign In"
+        End If
+
     End Function
-
-
 
     Friend WithEvents Tab1 As RibbonTab
     Friend WithEvents Group1 As RibbonGroup
@@ -409,6 +417,7 @@ Partial Class Ribbon1
     Friend WithEvents RI_DefineMyStyle As RibbonButton
     Friend WithEvents RI_HelpMe As RibbonButton
     Friend WithEvents RI_CompareSelected As RibbonButton
+    Friend WithEvents RI_AuthToggle As RibbonButton 
 End Class
 
 Partial Class ThisRibbonCollection
@@ -421,32 +430,23 @@ Partial Class ThisRibbonCollection
     End Property
 End Class
 
-
-
 Partial Class Ribbon2
     Inherits RibbonBase
 
     <System.Diagnostics.DebuggerNonUserCode()>
     Public Sub New(ByVal container As System.ComponentModel.IContainer)
         MyClass.New()
-
-        'Required for Windows.Forms Class Composition Designer support
         If (container IsNot Nothing) Then
             container.Add(Me)
         End If
-
     End Sub
 
     <System.Diagnostics.DebuggerNonUserCode()>
     Public Sub New()
         MyBase.New(Globals.Factory.GetRibbonFactory())
-
-        'This call is required by the Component Designer.
         InitializeComponent()
-
     End Sub
 
-    'Component overrides dispose to clean up the component list.
     <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
@@ -458,11 +458,9 @@ Partial Class Ribbon2
         End Try
     End Sub
 
-    'Required by the Component Designer
     Private components As System.ComponentModel.IContainer
 
-    Public AN As String = "Red Ink" ' Also Search & Replace manually
-
+    Public AN As String = "Red Ink"
     'NOTE: The following procedure is required by the Component Designer
     'It can be modified using the Component Designer.
     'Do not modify it using the code editor.
@@ -478,6 +476,7 @@ Partial Class Ribbon2
         Me.Menu2 = Me.Factory.CreateRibbonMenu
         Me.RI_Improve = Me.Factory.CreateRibbonButton
         Me.RI_ApplyMyStyle = Me.Factory.CreateRibbonButton
+        Me.RI_DefineMyStyle = Me.Factory.CreateRibbonButton
         Me.RI_NoFillers = Me.Factory.CreateRibbonButton
         Me.RI_Friendly = Me.Factory.CreateRibbonButton
         Me.RI_Convincing = Me.Factory.CreateRibbonButton
@@ -488,9 +487,9 @@ Partial Class Ribbon2
         Me.RI_Freestyle = Me.Factory.CreateRibbonButton
         Me.RI_CompareSelected = Me.Factory.CreateRibbonButton
         Me.RI_Clipboard = Me.Factory.CreateRibbonButton
-        Me.RI_DefineMyStyle = Me.Factory.CreateRibbonButton
         Me.RI_HelpMe = Me.Factory.CreateRibbonButton
         Me.Settings = Me.Factory.CreateRibbonButton
+        Me.RI_AuthToggle = Me.Factory.CreateRibbonButton() ' ADDED
         Me.Group2 = Me.Factory.CreateRibbonGroup
         Me.RI_PrimLang2 = Me.Factory.CreateRibbonButton
         Me.RI_Correct2 = Me.Factory.CreateRibbonButton
@@ -536,6 +535,7 @@ Partial Class Ribbon2
         Me.Menu1.Items.Add(Me.RI_DefineMyStyle)
         Me.Menu1.Items.Add(Me.RI_HelpMe)
         Me.Menu1.Items.Add(Me.Settings)
+        Me.Menu1.Items.Add(Me.RI_AuthToggle)
         Me.Menu1.KeyTip = "S"
         Me.Menu1.Label = "Task"
         Me.Menu1.Name = "Menu1"
@@ -645,7 +645,7 @@ Partial Class Ribbon2
         Me.RI_Summarize.ScreenTip = "Will create a short summary of your selected text"
         Me.RI_Summarize.ShowImage = True
         '
-        'Sumup
+        'RI_Sumup
         '
         Me.RI_Sumup.Label = "Sum-up"
         Me.RI_Sumup.Name = "RI_Sumup"
@@ -678,7 +678,6 @@ Partial Class Ribbon2
         Me.RI_CompareSelected.OfficeImageId = "ReviewCompareTwoVersions"
         Me.RI_CompareSelected.ScreenTip = "This will allow you to compare two selected portions of text within Outlook"
         Me.RI_CompareSelected.ShowImage = True
-
         '
         'RI_Clipboard
         '
@@ -712,6 +711,13 @@ Partial Class Ribbon2
         Me.Settings.OfficeImageId = "SetupClassicOffline"
         Me.Settings.ScreenTip = "Allows you to temporarily change the settings"
         Me.Settings.ShowImage = True
+        '
+        'RI_AuthToggle
+        '
+        Me.RI_AuthToggle.Label = "Sign In / Out"
+        Me.RI_AuthToggle.Name = "RI_AuthToggle"
+        Me.RI_AuthToggle.OfficeImageId = "AccountSettings"
+        Me.RI_AuthToggle.ShowImage = True
         '
         'Group2
         '
@@ -764,9 +770,7 @@ Partial Class Ribbon2
 
     End Sub
 
-
     Public Async Function UpdateRibbon() As Task
-
         If String.IsNullOrWhiteSpace(ThisAddIn.INI_APICall_Object) Then
             Me.RI_Clipboard.Visible = False
         Else
@@ -796,9 +800,13 @@ Partial Class Ribbon2
 
         ApplyThemeAwareMenuIcon()
 
+        If AppSession.Auth.IsAuthenticated Then
+            Me.RI_AuthToggle.Label = "Sign Out"
+        Else
+            Me.RI_AuthToggle.Label = "Sign In"
+        End If
+
     End Function
-
-
 
     Friend WithEvents Tab1 As RibbonTab
     Friend WithEvents Group1 As RibbonGroup
@@ -827,6 +835,7 @@ Partial Class Ribbon2
     Friend WithEvents RI_DefineMyStyle As RibbonButton
     Friend WithEvents RI_HelpMe As RibbonButton
     Friend WithEvents RI_CompareSelected As RibbonButton
+    Friend WithEvents RI_AuthToggle As RibbonButton
 End Class
 
 Partial Class ThisRibbonCollection

@@ -60,9 +60,7 @@ Public Class Ribbon1
                 End If
             End Using
         Catch
-            ' fall through
         End Try
-
         Return OfficeTheme.Unknown
     End Function
 
@@ -71,136 +69,206 @@ Public Class Ribbon1
         Const appsUseLightTheme As String = "AppsUseLightTheme"
         Try
             Using key = Registry.CurrentUser.OpenSubKey(personalizePath)
-                If key Is Nothing Then Return True ' default to light if unknown
+                If key Is Nothing Then Return True
                 Dim raw = key.GetValue(appsUseLightTheme)
                 If raw Is Nothing Then Return True
                 Dim v As Integer
                 If Integer.TryParse(raw.ToString(), v) Then
-                    Return v <> 0 ' 1=Light, 0=Dark
+                    Return v <> 0
                 End If
             End Using
         Catch
-            ' default to light on error
         End Try
         Return True
     End Function
 
+    ' --- AUTH GATEKEEPER FOR RIBBON 1 ---
+    Private Async Sub ExecuteAuthenticated(action As System.Action)
+        Try
+            Dim isAuthenticated = Await AppSession.EnsureAuthenticatedAsync()
+            If Not isAuthenticated Then Return
+            Me.RI_AuthToggle.Label = "Sign Out"
+            action.Invoke()
+        Catch ex As Exception
+            System.Windows.Forms.MessageBox.Show("Error checking authentication: " & ex.Message, "Red Ink Auth", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Async Sub RI_AuthToggle_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_AuthToggle.Click
+        Try
+            If AppSession.Auth.IsAuthenticated Then
+                Dim result = System.Windows.Forms.MessageBox.Show("Are you sure you want to sign out?", "Red Ink", System.Windows.Forms.MessageBoxButtons.YesNo)
+                If result = System.Windows.Forms.DialogResult.Yes Then
+                    Await AppSession.Auth.LogoutAsync()
+                    RI_AuthToggle.Label = "Sign In"
+                    System.Windows.Forms.MessageBox.Show("You have been signed out.")
+                End If
+            Else
+                Dim success = Await AppSession.EnsureAuthenticatedAsync()
+                If success Then RI_AuthToggle.Label = "Sign Out"
+            End If
+        Catch ex As Exception
+            System.Windows.Forms.MessageBox.Show("Error: " & ex.Message)
+        End Try
+    End Sub
+
     Public Sub RI_Correct_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Correct.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Correct_Click invoked")
-        Globals.ThisAddIn.MainMenu("Correct")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Correct_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Correct")
+                             End Sub)
     End Sub
 
     Public Sub RI_Correct2_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Correct2.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Correct2_Click invoked")
-        Globals.ThisAddIn.MainMenu("Correct")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Correct2_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Correct")
+                             End Sub)
     End Sub
 
     Public Sub RI_Summarize_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Summarize.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Summarize_Click invoked")
-        Globals.ThisAddIn.MainMenu("Summarize")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Summarize_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Summarize")
+                             End Sub)
     End Sub
 
     Public Sub RI_Shorten_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Shorten.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Shorten_Click invoked")
-        Globals.ThisAddIn.MainMenu("Shorten")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Shorten_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Shorten")
+                             End Sub)
     End Sub
 
     Public Sub RI_PrimLang_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Primlang.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_PrimLang_Click invoked")
-        Globals.ThisAddIn.MainMenu("PrimLang")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_PrimLang_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("PrimLang")
+                             End Sub)
     End Sub
 
     Public Sub RI_PrimLang2_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_PrimLang2.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_PrimLang2_Click invoked")
-        Globals.ThisAddIn.MainMenu("PrimLang")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_PrimLang2_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("PrimLang")
+                             End Sub)
     End Sub
 
     Public Sub RI_Improve_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Improve.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Improve_Click invoked")
-        Globals.ThisAddIn.MainMenu("Improve")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Improve_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Improve")
+                             End Sub)
     End Sub
 
     Public Sub RI_Freestyle_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Freestyle.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Freestyle_Click invoked")
-        Globals.ThisAddIn.MainMenu("Freestyle")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Freestyle_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Freestyle")
+                             End Sub)
     End Sub
 
     Public Sub RI_Answers_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Answers.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Answers_Click invoked")
-        Globals.ThisAddIn.MainMenu("Answers")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Answers_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Answers")
+                             End Sub)
     End Sub
 
     Private Sub RI_Translate_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Translate.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Translate_Click invoked")
-        Globals.ThisAddIn.MainMenu("Translate")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Translate_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Translate")
+                             End Sub)
     End Sub
 
     Private Sub RI_QuickTranslate_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_QuickTranslate.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_QuickTranslate_Click invoked")
-        Globals.ThisAddIn.ShowQuickTranslate()
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_QuickTranslate_Click invoked")
+                                 Globals.ThisAddIn.ShowQuickTranslate()
+                             End Sub)
     End Sub
 
-
-
     Private Sub Settings_Click(sender As Object, e As RibbonControlEventArgs) Handles Settings.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "Settings_Click invoked")
-        Globals.ThisAddIn.ShowSettings()
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "Settings_Click invoked")
+                                 Globals.ThisAddIn.ShowSettings()
+                             End Sub)
     End Sub
 
     Private Sub RI_Sumup_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Sumup.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Sumup_Click invoked")
-        Globals.ThisAddIn.MainMenu("Sumup")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "Sumup_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Sumup")
+                             End Sub)
     End Sub
 
     Private Sub RI_Sumup2_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Sumup2.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Sumup2_Click invoked")
-        Globals.ThisAddIn.MainMenu("Sumup")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Sumup2_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Sumup")
+                             End Sub)
     End Sub
 
     Private Sub RI_NoFillers_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_NoFillers.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_NoFillers_Click invoked")
-        Globals.ThisAddIn.MainMenu("NoFillers")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_NoFillers_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("NoFillers")
+                             End Sub)
     End Sub
 
     Private Sub RI_Friendly_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Friendly.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Friendly_Click invoked")
-        Globals.ThisAddIn.MainMenu("Friendly")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Friendly_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Friendly")
+                             End Sub)
     End Sub
 
     Private Sub RI_Convincing_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Convincing.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Convincing_Click invoked")
-        Globals.ThisAddIn.MainMenu("Convincing")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Convincing_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Convincing")
+                             End Sub)
     End Sub
 
     Private Sub RI_Clipboard_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Clipboard.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Clipboard_Click invoked")
-        Globals.ThisAddIn.MainMenu("InsertClipboard")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Clipboard_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("InsertClipboard")
+                             End Sub)
     End Sub
 
     Private Sub RI_ApplyMyStyle_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_ApplyMyStyle.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_ApplyMyStyle_Click invoked")
-        Globals.ThisAddIn.MainMenu("ApplyMyStyle")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_ApplyMyStyle_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("ApplyMyStyle")
+                             End Sub)
     End Sub
 
     Private Sub RI_DefineMyStyle_Click_1(sender As Object, e As RibbonControlEventArgs) Handles RI_DefineMyStyle.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_DefineMyStyle_Click_1 invoked")
-        Globals.ThisAddIn.DefineMyStyle()
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_DefineMyStyle_Click_1 invoked")
+                                 Globals.ThisAddIn.DefineMyStyle()
+                             End Sub)
     End Sub
 
     Private Sub RI_HelpMe_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_HelpMe.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_HelpMe_Click invoked")
-        Globals.ThisAddIn.HelpMeInky()
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_HelpMe_Click invoked")
+                                 Globals.ThisAddIn.HelpMeInky()
+                             End Sub)
     End Sub
 
     Private Sub RI_CompareSelected_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_CompareSelected.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_CompareSelected_Click invoked")
-        Globals.ThisAddIn.CompareSelectedTextRangesOutlook()
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_CompareSelected_Click invoked")
+                                 Globals.ThisAddIn.CompareSelectedTextRangesOutlook()
+                             End Sub)
     End Sub
 
 End Class
 
 Public Class Ribbon2
-
 
     Private Enum OfficeTheme
         Unknown
@@ -254,9 +322,7 @@ Public Class Ribbon2
                 End If
             End Using
         Catch
-            ' fall through
         End Try
-
         Return OfficeTheme.Unknown
     End Function
 
@@ -269,124 +335,195 @@ Public Class Ribbon2
                 Dim raw = key.GetValue(appsUseLightTheme)
                 If raw Is Nothing Then Return True
                 Dim v As Integer
-                If Integer.TryParse(raw.ToString(), v) Then
-                    Return v <> 0
-                End If
+                If Integer.TryParse(raw.ToString(), v) Then Return v <> 0
             End Using
         Catch
         End Try
         Return True
     End Function
 
+    ' --- AUTH GATEKEEPER FOR RIBBON 2 ---
+    Private Async Sub ExecuteAuthenticated(action As System.Action)
+        Try
+            Dim isAuthenticated = Await AppSession.EnsureAuthenticatedAsync()
+            If Not isAuthenticated Then Return
+            Me.RI_AuthToggle.Label = "Sign Out"
+            action.Invoke()
+        Catch ex As Exception
+            System.Windows.Forms.MessageBox.Show("Error checking authentication: " & ex.Message, "Red Ink Auth", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Async Sub RI_AuthToggle_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_AuthToggle.Click
+        Try
+            If AppSession.Auth.IsAuthenticated Then
+                Dim result = System.Windows.Forms.MessageBox.Show("Are you sure you want to sign out?", "Red Ink", System.Windows.Forms.MessageBoxButtons.YesNo)
+                If result = System.Windows.Forms.DialogResult.Yes Then
+                    Await AppSession.Auth.LogoutAsync()
+                    RI_AuthToggle.Label = "Sign In"
+                    System.Windows.Forms.MessageBox.Show("You have been signed out.")
+                End If
+            Else
+                Dim success = Await AppSession.EnsureAuthenticatedAsync()
+                If success Then RI_AuthToggle.Label = "Sign Out"
+            End If
+        Catch ex As Exception
+            System.Windows.Forms.MessageBox.Show("Error: " & ex.Message)
+        End Try
+    End Sub
+
     Public Sub RI_Correct_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Correct.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Correct_Click invoked")
-        Globals.ThisAddIn.MainMenu("Correct")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Correct_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Correct")
+                             End Sub)
     End Sub
 
     Public Sub RI_Correct2_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Correct2.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Correct2_Click invoked")
-        Globals.ThisAddIn.MainMenu("Correct")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Correct2_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Correct")
+                             End Sub)
     End Sub
 
     Public Sub RI_Summarize_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Summarize.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Summarize_Click invoked")
-        Globals.ThisAddIn.MainMenu("Summarize")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Summarize_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Summarize")
+                             End Sub)
     End Sub
 
     Public Sub RI_Shorten_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Shorten.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Shorten_Click invoked")
-        Globals.ThisAddIn.MainMenu("Shorten")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Shorten_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Shorten")
+                             End Sub)
     End Sub
 
     Public Sub RI_PrimLang_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Primlang.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_PrimLang_Click invoked")
-        Globals.ThisAddIn.MainMenu("PrimLang")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_PrimLang_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("PrimLang")
+                             End Sub)
     End Sub
 
     Public Sub RI_PrimLang2_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_PrimLang2.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_PrimLang2_Click invoked")
-        Globals.ThisAddIn.MainMenu("PrimLang")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_PrimLang2_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("PrimLang")
+                             End Sub)
     End Sub
 
     Public Sub RI_Improve_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Improve.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Improve_Click invoked")
-        Globals.ThisAddIn.MainMenu("Improve")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Improve_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Improve")
+                             End Sub)
     End Sub
 
     Public Sub RI_Freestyle_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Freestyle.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Freestyle_Click invoked")
-        Globals.ThisAddIn.MainMenu("Freestyle")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Freestyle_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Freestyle")
+                             End Sub)
     End Sub
 
     Public Sub RI_Answers_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Answers.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Answers_Click invoked")
-        Globals.ThisAddIn.MainMenu("Answers")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Answers_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Answers")
+                             End Sub)
     End Sub
 
     Private Sub RI_Translate_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Translate.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Translate_Click invoked")
-        Globals.ThisAddIn.MainMenu("Translate")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Translate_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Translate")
+                             End Sub)
     End Sub
 
     Private Sub RI_QuickTranslate_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_QuickTranslate.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_QuickTranslate_Click invoked")
-        Globals.ThisAddIn.ShowQuickTranslate()
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_QuickTranslate_Click invoked")
+                                 Globals.ThisAddIn.ShowQuickTranslate()
+                             End Sub)
     End Sub
 
-
     Private Sub Settings_Click(sender As Object, e As RibbonControlEventArgs) Handles Settings.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "Settings_Click invoked")
-        Globals.ThisAddIn.ShowSettings()
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "Settings_Click invoked")
+                                 Globals.ThisAddIn.ShowSettings()
+                             End Sub)
     End Sub
 
     Private Sub RI_Sumup_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Sumup.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "Sumup_Click invoked")
-        Globals.ThisAddIn.MainMenu("Sumup")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "Sumup_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Sumup")
+                             End Sub)
     End Sub
 
     Private Sub RI_Sumup2_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Sumup2.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Sumup2_Click invoked")
-        Globals.ThisAddIn.MainMenu("Sumup")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Sumup2_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Sumup")
+                             End Sub)
     End Sub
 
     Private Sub RI_NoFillers_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_NoFillers.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_NoFillers_Click invoked")
-        Globals.ThisAddIn.MainMenu("NoFillers")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_NoFillers_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("NoFillers")
+                             End Sub)
     End Sub
 
     Private Sub RI_Friendly_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Friendly.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Friendly_Click invoked")
-        Globals.ThisAddIn.MainMenu("Friendly")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Friendly_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Friendly")
+                             End Sub)
     End Sub
 
     Private Sub RI_Convincing_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Convincing.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Convincing_Click invoked")
-        Globals.ThisAddIn.MainMenu("Convincing")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Convincing_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("Convincing")
+                             End Sub)
     End Sub
 
     Private Sub RI_Clipboard_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_Clipboard.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Clipboard_Click invoked")
-        Globals.ThisAddIn.MainMenu("InsertClipboard")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_Clipboard_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("InsertClipboard")
+                             End Sub)
     End Sub
 
     Private Sub RI_ApplyMyStyle_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_ApplyMyStyle.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_ApplyMyStyle_Click invoked")
-        Globals.ThisAddIn.MainMenu("ApplyMyStyle")
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_ApplyMyStyle_Click invoked")
+                                 Globals.ThisAddIn.MainMenu("ApplyMyStyle")
+                             End Sub)
     End Sub
 
     Private Sub RI_DefineMyStyle_Click_1(sender As Object, e As RibbonControlEventArgs) Handles RI_DefineMyStyle.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_DefineMyStyle_Click_1 invoked")
-        Globals.ThisAddIn.DefineMyStyle()
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_DefineMyStyle_Click_1 invoked")
+                                 Globals.ThisAddIn.DefineMyStyle()
+                             End Sub)
     End Sub
 
     Private Sub RI_HelpMe_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_HelpMe.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_HelpMe_Click invoked")
-        Globals.ThisAddIn.HelpMeInky()
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_HelpMe_Click invoked")
+                                 Globals.ThisAddIn.HelpMeInky()
+                             End Sub)
     End Sub
 
     Private Sub RI_CompareSelected_Click(sender As Object, e As RibbonControlEventArgs) Handles RI_CompareSelected.Click
-        SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_CompareSelected_Click invoked")
-        Globals.ThisAddIn.CompareSelectedTextRangesOutlook()
+        ExecuteAuthenticated(Sub()
+                                 SharedLogger.Log(ThisAddIn._context, ThisAddIn._context.RDV, "RI_CompareSelected_Click invoked")
+                                 Globals.ThisAddIn.CompareSelectedTextRangesOutlook()
+                             End Sub)
     End Sub
 
 End Class
